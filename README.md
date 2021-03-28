@@ -1,6 +1,6 @@
-# Live Variable Analysis in LLVM
+# Strongly Live Variable Analysis in LLVM
 
-## Liveness of a variable
+## Strong Liveness of a variable
 
 A variable is said to be live at some point if it holds a value that may be needed in the future, or equivalently if its value may be read before the next time the variable is written to.
 

@@ -106,11 +106,37 @@ class LVAPass : public FunctionPass {
 		}
 		return difference;
 	}
+	std::set<Value*> intersection(std::set<Value*> V1, std::set<Value*> V2){
+		std::set<Value*> intersect;
+		for(auto V : V1){
+			if(V2.find(V)!= V2.end()){
+				intersect.insert(V);
+			}
+		}
+		return intersect;
+	}
+	bool stronglyLive(std::set<Value*> kill, std::set<Value*> out){
+		bool strong = false;
+		if(kill.size()==0){
+			strong = true;
+		}else if(intersection(kill , out).size()==0){
+			
+		}else{
+			strong = true;
+		}
+		return strong;	
+	}
 	std::set<Value*> getIn(Instruction *I){
 		std::set<Value*> d_content;
 		std::set<Value*> in_content;
-		d_content = getDifference(Out[I], kill(I));
-		in_content = setUnion(gen(I), d_content);
+		auto K = kill(I);
+		if(stronglyLive(K, Out[I])){
+			d_content = getDifference(Out[I], K);
+			in_content = setUnion(gen(I), d_content);
+		}else{
+			in_content = Out[I];
+		}
+		
 		return in_content; 
 	}
 
@@ -121,6 +147,7 @@ class LVAPass : public FunctionPass {
 		}
 		return OutVal;
 	}
+	
 	void printSet(std::set<Value*> Val){
 		for(auto temp : Val){
 			std::cout<<temp->getName().str()<<" ";
@@ -147,7 +174,7 @@ class LVAPass : public FunctionPass {
 char LVAPass::ID = 0;
 static RegisterPass<LVAPass> X(
     "lva",			      // the option name -> -mba
-    "Live Variable Analysis",  // option description
+    "Strongly Live Variable Analysis",  // option description
     true,			      // true as we don't modify the CFG
     true
 );
